@@ -1,5 +1,5 @@
 const CACHE = 'students-14pkcs8';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
+const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
