@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لیست دانش‌آموزان</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2b6cff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="لیست دانش‌آموزان">
+<link rel="apple-touch-icon" href="./icon.svg">
+<script>
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  });
+}
+</script>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin:0; padding:12px; font-family: Tahoma, "Segoe UI", sans-serif; background:#f2f4f7; color:#1c1c1c; }
+h1 { text-align:center; font-size:20px; margin:10px 0 16px; color:#234; }
+#list { display:flex; flex-direction:column; gap:10px; }
+.student-btn { display:flex; align-items:center; gap:12px; width:100%; background:#fff; border:1px solid #dde3ec; border-radius:14px; padding:12px 14px; text-align:right; font-family:inherit; font-size:16px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+.student-btn:active { transform:scale(.98); background:#eef4ff; }
+.num { flex:0 0 40px; height:40px; border-radius:50%; background:#2b6cff; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:17px; }
+.names { display:flex; flex-direction:column; gap:3px; }
+.name { font-weight:bold; font-size:16px; color:#16213e; }
+.addr-name { font-size:13px; color:#667; }
+#detail { display:none; }
+.card { background:#fff; border-radius:16px; padding:18px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.card .top-num { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:#2b6cff; color:#fff; font-weight:bold; font-size:16px; margin-bottom:8px; }
+.card h2 { margin:0 0 18px; font-size:22px; color:#16213e; }
+.row { display:flex; align-items:center; gap:10px; padding:12px 0; border-top:1px solid #eef0f4; font-size:16px; }
+.row:first-of-type { border-top:none; }
+.row .lbl { color:#7a869a; min-width:78px; font-size:14px; }
+.row .val { font-weight:600; }
+a.tel { color:#0a8f4c; text-decoration:none; font-weight:bold; direction:ltr; display:inline-block; }
+a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:15px; }
+.back { display:block; width:100%; margin-top:16px; padding:13px; font-family:inherit; font-size:16px; font-weight:bold; border:none; border-radius:12px; background:#e6ebf3; color:#334; cursor:pointer; }
+.empty-msg { text-align:center; color:#889; padding:30px 10px; font-size:14px; }
+@media (min-width: 620px) { body { max-width:600px; margin:0 auto; } }
+</style>
+</head>
+<body>
+<h1>لیست دانش‌آموزان</h1>
+<div id="list"></div>
+<div id="detail"></div>
+<script>
+(function(){
+  var students = [{"name":"آقای قریش‌وندی","phone":"09100558263","grade":"هفتم","addrName":"خانه‌ی آقاجون","map":"https://www.google.com/maps/place/34%C2%B039'05.9%22N+50%C2%B051'53.4%22E/@34.651624,50.864828,16z/data=!4m4!3m3!8m2!3d34.651624!4d50.864828?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"},{"name":"آقای ذولفی","phone":"09193590580","grade":"هشتم","addrName":"فهیمی ۱۴","map":"https://www.google.com/maps/place/34%C2%B039'02.4%22N+50%C2%B052'09.9%22E/@34.650665,50.869402,16z/data=!4m4!3m3!8m2!3d34.650665!4d50.869402?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"},{"name":"آقای قریشی","phone":"0272105167","grade":"هفتم","addrName":"توحید ۱۰","map":"https://www.google.com/maps/place/34%C2%B038'29.5%22N+50%C2%B051'52.8%22E/@34.641521,50.864665,16z/data=!4m4!3m3!8m2!3d34.641521!4d50.864665?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"},{"name":"آقای فرهانی","phone":"09127529054","grade":"هفتم","addrName":"توحید ۱۷","map":"https://www.google.com/maps/place/34%C2%B038'41.2%22N+50%C2%B051'40.6%22E/@34.644767,50.861279,16z/data=!4m4!3m3!8m2!3d34.644767!4d50.861279?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"},{"name":"حجتی","phone":"۰۹۰۱۰۹۸۶۸۱۵","grade":"دوم","addrName":"توحید 45","map":"https://www.google.com/maps/place/34%C2%B039'05.7%22N+50%C2%B050'45.8%22E/@34.651585,50.84605,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.651585!4d50.84605?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D"}];
+  var listEl = document.getElementById("list");
+  var detailEl = document.getElementById("detail");
+  var h1 = document.querySelector("h1");
+  function makeRow(label, value) {
+    var r = document.createElement("div"); r.className = "row";
+    var l = document.createElement("span"); l.className = "lbl"; l.textContent = label;
+    var v = document.createElement("span"); v.className = "val"; v.textContent = value;
+    r.appendChild(l); r.appendChild(v); return r;
+  }
+  function renderList() {
+    listEl.innerHTML = "";
+    if (!students.length) { listEl.innerHTML = '<div class="empty-msg">هنوز دانش‌آموزی ثبت نشده است.</div>'; return; }
+    students.forEach(function(s, i){
+      var btn = document.createElement("button"); btn.className = "student-btn";
+      var num = document.createElement("span"); num.className = "num"; num.textContent = i + 1;
+      var names = document.createElement("span"); names.className = "names";
+      var nm = document.createElement("span"); nm.className = "name"; nm.textContent = s.name;
+      var ad = document.createElement("span"); ad.className = "addr-name"; ad.textContent = s.addrName;
+      names.appendChild(nm); names.appendChild(ad);
+      btn.appendChild(num); btn.appendChild(names);
+      btn.addEventListener("click", function(){ showDetail(i); });
+      listEl.appendChild(btn);
+    });
+  }
+  function showDetail(i) {
+    var s = students[i]; detailEl.innerHTML = "";
+    var card = document.createElement("div"); card.className = "card";
+    var tn = document.createElement("span"); tn.className = "top-num"; tn.textContent = i + 1;
+    var h2 = document.createElement("h2"); h2.textContent = s.name;
+    card.appendChild(tn); card.appendChild(h2);
+    card.appendChild(makeRow("کلاس", s.grade));
+    var pr = document.createElement("div"); pr.className = "row";
+    var l1 = document.createElement("span"); l1.className = "lbl"; l1.textContent = "موبایل";
+    var tel = document.createElement("a"); tel.className = "tel"; tel.href = "tel:" + s.phone; tel.textContent = s.phone + " 📞";
+    pr.appendChild(l1); pr.appendChild(tel); card.appendChild(pr);
+    card.appendChild(makeRow("آدرس", s.addrName));
+    var mr = document.createElement("div"); mr.className = "row";
+    var l2 = document.createElement("span"); l2.className = "lbl"; l2.textContent = "مسیریابی";
+    var ma = document.createElement("a"); ma.className = "map"; ma.href = s.map; ma.target = "_blank"; ma.rel = "noopener"; ma.textContent = "📍 بازکردن در نقشه گوگل";
+    mr.appendChild(l2); mr.appendChild(ma); card.appendChild(mr);
+    var back = document.createElement("button"); back.className = "back"; back.textContent = "← بازگشت به لیست";
+    back.addEventListener("click", hideDetail); card.appendChild(back);
+    detailEl.appendChild(card);
+    listEl.style.display = "none"; h1.style.display = "none";
+    detailEl.style.display = "block"; window.scrollTo(0, 0);
+  }
+  function hideDetail() {
+    detailEl.style.display = "none"; detailEl.innerHTML = "";
+    listEl.style.display = "flex"; h1.style.display = "block";
+    window.scrollTo(0, 0);
+  }
+  renderList();
+})();
+</script>
+</body>
+</html>
