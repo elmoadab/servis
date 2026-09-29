@@ -6,7 +6,19 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
+  "background_color": "#f2f4f7",{
+  "name": "لیست دانش‌آموزان",
+  "short_name": "دانش‌آموزان",
+  "description": "لیست تماس و آدرس دانش‌آموزان",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f2f4f7",
+  "theme_color": "#2b6cff",
+  "dir": "rtl",
+  "lang": "fa"
+}
   "theme_color": "#2b6cff",
   "dir": "rtl",
   "lang": "fa"
