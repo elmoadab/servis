@@ -1,4 +1,4 @@
-const CACHE = 'students-1adsxzv-v14-muqyxk6t';
+const CACHE = 'students-mey5vk-v14-mur02vkz';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function (e) {
