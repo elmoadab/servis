@@ -31,11 +31,12 @@ if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
 </script>
 <style>
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { margin:0; padding:12px; font-family: Tahoma, "Segoe UI", sans-serif; background:#f2f4f7; color:#1c1c1c; }
-h1 { text-align:center; font-size:20px; margin:10px 0 16px; color:#234; }
-.list-tabs { display:flex; gap:6px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
-.list-tab { flex:0 0 auto; padding:9px 16px; border:1px solid #dde3ec; background:#fff; border-radius:999px; font-family:inherit; font-size:14px; font-weight:bold; color:#667; cursor:pointer; white-space:nowrap; }
+body { margin:0; padding:0; font-family: Tahoma, "Segoe UI", sans-serif; background:#f2f4f7; color:#1c1c1c; }
+h1 { text-align:center; font-size:18px; margin:0; padding:14px; background:#2b6cff; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.list-tabs { display:flex; gap:6px; overflow-x:auto; padding:10px 12px; background:#fff; border-bottom:1px solid #e6ebf3; position:sticky; top:0; z-index:10; }
+.list-tab { flex:0 0 auto; padding:9px 16px; border:2px solid #e0e5ee; background:#fff; border-radius:999px; font-family:inherit; font-size:14px; font-weight:bold; color:#667; cursor:pointer; white-space:nowrap; transition: background .15s, color .15s, border-color .15s; }
 .list-tab.active { background:#2b6cff; color:#fff; border-color:#2b6cff; }
+#content { padding:12px; }
 #list { display:flex; flex-direction:column; gap:10px; }
 .student-row { display:flex; gap:8px; align-items:stretch; }
 .student-btn { flex:1; display:flex; align-items:center; gap:12px; background:#fff; border:1px solid #dde3ec; border-radius:14px; padding:12px 14px; text-align:right; font-family:inherit; font-size:16px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.06); transition: background .15s, border-color .15s; min-width:0; }
@@ -50,10 +51,23 @@ h1 { text-align:center; font-size:20px; margin:10px 0 16px; color:#234; }
 .check-btn { flex:0 0 56px; border:2px solid #c9d2e0; background:#fff; border-radius:14px; cursor:pointer; font-size:26px; font-weight:900; color:transparent; display:flex; align-items:center; justify-content:center; padding:0; transition: background .15s, border-color .15s, color .15s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .check-btn:active { transform:scale(.94); }
 .check-btn.on { background:#12b76a; border-color:#12b76a; color:#fff; }
+.tuition-btn { flex:0 0 56px; border:2px solid #f0c14b; background:#fffdf5; border-radius:14px; cursor:pointer; font-size:13px; font-weight:bold; color:#b8860b; display:flex; align-items:center; justify-content:center; padding:0 4px; transition: background .15s, border-color .15s, color .15s; text-align:center; line-height:1.2; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.tuition-btn:active { transform:scale(.94); background:#fff3cd; }
 #detail { display:none; }
 .card { background:#fff; border-radius:16px; padding:18px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
 .card .top-num { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:#2b6cff; color:#fff; font-weight:bold; font-size:16px; margin-bottom:8px; }
 .card h2 { margin:0 0 18px; font-size:22px; color:#16213e; }
+.tuition-amount { font-size:18px; font-weight:bold; color:#16213e; margin-bottom:18px; padding:10px 0; border-bottom:1px solid #eef0f4; }
+.months-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:16px; }
+.month-btn { position:relative; padding:14px 8px; border:2px solid #dde3ec; background:#f8fafc; border-radius:12px; font-family:inherit; font-size:15px; font-weight:bold; color:#334; cursor:pointer; transition: background .25s, border-color .25s, color .25s, transform .2s, box-shadow .3s; overflow:hidden; user-select:none; -webkit-user-select:none; touch-action:none; }
+.month-btn:active { transform:scale(.97); }
+.month-btn.holding { background:#fff5f0; border-color:#f5a89a; }
+.month-btn.paid { background:#eafaf0; border-color:#a8e0bd; color:#6b8279; }
+.month-btn.paid.holding { background:#fef3f2; border-color:#f5a89a; }
+.month-btn .strike { position:absolute; left:12%; right:12%; top:50%; height:3px; background:#e8453c; border-radius:2px; transform:scaleX(0); transform-origin:right center; transition:none; pointer-events:none; will-change:transform; }
+.month-btn.paid .strike { transform:scaleX(1); transform-origin:left center; }
+.month-btn.success-pulse { animation: monthSuccess .55s ease-out; }
+@keyframes monthSuccess { 0% { transform:scale(1); box-shadow:0 0 0 0 rgba(18,183,106,.45); } 40% { transform:scale(1.06); box-shadow:0 0 0 10px rgba(18,183,106,0); } 100% { transform:scale(1); box-shadow:0 0 0 0 rgba(18,183,106,0); } }
 .row { display:flex; align-items:center; gap:10px; padding:12px 0; border-top:1px solid #eef0f4; font-size:16px; }
 .row:first-of-type { border-top:none; }
 .row .lbl { color:#7a869a; min-width:78px; font-size:14px; flex-shrink:0; }
@@ -63,28 +77,104 @@ a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; 
 .back { display:block; width:100%; margin-top:16px; padding:13px; font-family:inherit; font-size:16px; font-weight:bold; border:none; border-radius:12px; background:#e6ebf3; color:#334; cursor:pointer; }
 .empty-msg { text-align:center; color:#889; padding:30px 10px; font-size:14px; }
 .reset-checks-btn { margin-top:6px; margin-bottom:12px; width:100%; padding:11px; background:#fff5f4; color:#c0392b; border:1px solid #ffd6d1; border-radius:10px; font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer; }
-@media (min-width: 620px) { body { max-width:600px; margin:0 auto; } }
+@media (min-width: 620px) { #content { max-width:600px; margin:0 auto; } .list-tabs { justify-content:center; } }
 </style>
 </head>
 <body>
 <h1>لیست دانش‌آموزان</h1>
 <div id="listTabs" class="list-tabs"></div>
-<div id="list"></div>
-<div id="detail"></div>
+<div id="content"></div>
 <script>
 (function(){
-  var lists = [{"id":"muln0e3lbx6i3","name":"رفت","students":[{"id":"mullagjfd9v7x","name":"خانم کریمی","grade":"دوم","addrName":"کاشانی 44","map":"https://www.google.com/maps/place/34%C2%B039'12.1%22N+50%C2%B051'40.2%22E/@34.653355,50.861152,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.653355!4d50.861152?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09193497315"}]},{"id":"mumr69kpvptc9","name":"خانم افشاری و خانم جلالی منش","grade":"دوم و سوم","addrName":"کاشانی 42","map":"https://maps.app.goo.gl/S6L1YHQ7BCDbM2Xc7","phones":[{"label":"خانم افشاری","number":"09100752779"}]},{"id":"mull3ss3obtx3","name":"خانم تلخابی","grade":"سوم","addrName":"کاشانی 9","map":"https://www.google.com/maps/place/34%C2%B038'58.0%22N+50%C2%B051'31.0%22E/@34.649435,50.858607,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.649435!4d50.858607?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09192944894"}]},{"id":"mumrdhskstv1c","name":"خانم جعفری","grade":"اول","addrName":"توحید 23","map":"https://maps.app.goo.gl/8MbJ3cMXR7uaMLGg6","phones":[{"label":"شماره اصلی","number":"09198678375"},{"label":"شماره ثابت","number":"02538835328"}]},{"id":"mumqfqdybzdbc","name":"خانم سبز علی گل","grade":"دوم","addrName":"زاد 22 فرعی 2","map":"https://maps.app.goo.gl/Dpj8DF61g6rDmQoH8","phones":[{"label":"شماره اصلی","number":"09018121495"},{"label":"شماره خانه","number":"02538803384"}]},{"id":"mumqoobgpn8y5","name":"خانم پیرزادی","grade":"چهارم","addrName":"زاد 16","map":"https://maps.app.goo.gl/SXaLLi5UPoCqQTf6A","phones":[{"label":"شماره اصلی","number":"09198514504"}]},{"id":"mumqro3ved0ig","name":"خانم قابل","grade":"پنجم","addrName":"زاد 2","map":"https://maps.app.goo.gl/29te5GWfULB8TboE9","phones":[{"label":"شماره اصلی","number":"09105837562"},{"label":"آقای قابل","number":"09126528912"}]},{"id":"mumqu7sjm6770","name":"خانم خانی","grade":"چهارم","addrName":"توحید 1","map":"https://maps.app.goo.gl/fZjVSqBWn2P7yF2x6","phones":[{"label":"شماره اصلی","number":"09100117331"},{"label":"شماره دوم","number":"09058571274"},{"label":"آقای خانی","number":"09191971274"}]},{"id":"mull0bxy64m2c","name":"خانم صادقی","grade":"اول","addrName":"توحید 32","map":"https://www.google.com/maps/search/34.647443,+50.851560?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=b2d2d3bc-a489-45d8-8b3c-eba0f7187773","phones":[{"label":"شماره اصلی","number":"09908603747"}]},{"id":"mulkxbh1drpeu","name":"خانم عزیزی","grade":"چهارم","addrName":"سر توحید 35","map":"https://www.google.com/maps/place/34%C2%B038'55.9%22N+50%C2%B051'00.6%22E/@34.648855,50.850164,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.648855!4d50.850164?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"091225155740"}]},{"id":"mulksmrnla4c4","name":"خانم حجتی","grade":"پنجم","addrName":"توحید 45","map":"https://www.google.com/maps/search/34.651623,+50.846064?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=77925681-f15a-43e5-9667-38a4b1dd1857","phones":[{"label":"شماره اصلی","number":"۰۹۰۱۰۹۸۶۸۱۵"}]},{"id":"seed-3","name":"آقای قریش وندی","grade":"هفتم","addrName":"توحید ۱۰","map":"https://www.google.com/maps/place/34%C2%B038'29.5%22N+50%C2%B051'52.8%22E/@34.641521,50.864665,16z/data=!4m4!3m3!8m2!3d34.641521!4d50.864665?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"0272105167"}]},{"id":"seed-4","name":"آقای فرهانی","grade":"هفتم","addrName":"توحید ۱۷","map":"https://www.google.com/maps/place/34%C2%B038'41.2%22N+50%C2%B051'40.6%22E/@34.644767,50.861279,16z/data=!4m4!3m3!8m2!3d34.644767!4d50.861279?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09127529054"}]},{"id":"seed-2","name":"آقای ذولفی","grade":"هشتم","addrName":"فهیمی ۱۴","map":"https://www.google.com/maps/place/34%C2%B039'02.4%22N+50%C2%B052'09.9%22E/@34.650665,50.869402,16z/data=!4m4!3m3!8m2!3d34.650665!4d50.869402?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09193590580"}]},{"id":"seed-1","name":"آقای ابراهیمی","grade":"هفتم","addrName":"خانه‌ی آقاجون","map":"https://www.google.com/maps/place/34%C2%B039'05.9%22N+50%C2%B051'53.4%22E/@34.651624,50.864828,16z/data=!4m4!3m3!8m2!3d34.651624!4d50.864828?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09100558263"}]}]},{"id":"muln0e3lbx6i3","name":"برگشت","students":[{"id":"seed-1","name":"آقای ابراهیمی","grade":"هفتم","addrName":"خانه‌ی آقاجون","map":"https://www.google.com/maps/place/34%C2%B039'05.9%22N+50%C2%B051'53.4%22E/@34.651624,50.864828,16z/data=!4m4!3m3!8m2!3d34.651624!4d50.864828?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09100558263"}]},{"id":"seed-2","name":"آقای ذولفی","grade":"هشتم","addrName":"فهیمی ۱۴","map":"https://www.google.com/maps/place/34%C2%B039'02.4%22N+50%C2%B052'09.9%22E/@34.650665,50.869402,16z/data=!4m4!3m3!8m2!3d34.650665!4d50.869402?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09193590580"}]},{"id":"seed-3","name":"آقای قریشی","grade":"هفتم","addrName":"توحید ۱۰","map":"https://www.google.com/maps/place/34%C2%B038'29.5%22N+50%C2%B051'52.8%22E/@34.641521,50.864665,16z/data=!4m4!3m3!8m2!3d34.641521!4d50.864665?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"0272105167"}]},{"id":"seed-4","name":"آقای فرهانی","grade":"هفتم","addrName":"توحید ۱۷","map":"https://www.google.com/maps/place/34%C2%B038'41.2%22N+50%C2%B051'40.6%22E/@34.644767,50.861279,16z/data=!4m4!3m3!8m2!3d34.644767!4d50.861279?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09127529054"}]},{"id":"mulksmrnla4c4","name":"خانم حجتی","grade":"پنجم","addrName":"توحید 45","map":"https://www.google.com/maps/search/34.651623,+50.846064?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=77925681-f15a-43e5-9667-38a4b1dd1857","phones":[{"label":"شماره اصلی","number":"۰۹۰۱۰۹۸۶۸۱۵"}]},{"id":"mulkxbh1drpeu","name":"خانم عزیزی","grade":"چهارم","addrName":"سر توحید 35","map":"https://www.google.com/maps/place/34%C2%B038'55.9%22N+50%C2%B051'00.6%22E/@34.648855,50.850164,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.648855!4d50.850164?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"091225155740"}]},{"id":"mull0bxy64m2c","name":"خانم صادقی","grade":"اول","addrName":"توحید 32","map":"https://www.google.com/maps/search/34.647443,+50.851560?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=b2d2d3bc-a489-45d8-8b3c-eba0f7187773","phones":[{"label":"شماره اصلی","number":"09908603747"}]},{"id":"mull3ss3obtx3","name":"خانم تلخابی","grade":"سوم","addrName":"کاشانی 9","map":"https://www.google.com/maps/place/34%C2%B038'58.0%22N+50%C2%B051'31.0%22E/@34.649435,50.858607,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.649435!4d50.858607?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09192944894"}]},{"id":"mullagjfd9v7x","name":"خانم کریمی","grade":"دوم","addrName":"کاشانی 44","map":"https://www.google.com/maps/place/34%C2%B039'12.1%22N+50%C2%B051'40.2%22E/@34.653355,50.861152,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.653355!4d50.861152?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","phones":[{"label":"شماره اصلی","number":"09193497315"}]},{"id":"mumqfqdybzdbc","name":"خانم سبز علی گل","grade":"دوم","addrName":"زاد 22 فرعی 2","map":"https://maps.app.goo.gl/Dpj8DF61g6rDmQoH8","phones":[{"label":"شماره اصلی","number":"09018121495"},{"label":"شماره خانه","number":"02538803384"}]},{"id":"mumqoobgpn8y5","name":"خانم پیرزادی","grade":"چهارم","addrName":"زاد 16","map":"https://maps.app.goo.gl/SXaLLi5UPoCqQTf6A","phones":[{"label":"شماره اصلی","number":"09198514504"}]},{"id":"mumqro3ved0ig","name":"قابل","grade":"پنجم","addrName":"زاد 2","map":"https://maps.app.goo.gl/29te5GWfULB8TboE9","phones":[{"label":"شماره اصلی","number":"09105837562"},{"label":"آقای قابل","number":"09126528912"}]},{"id":"mumqu7sjm6770","name":"خانم خانی","grade":"چهارم","addrName":"توحید 1","map":"https://maps.app.goo.gl/fZjVSqBWn2P7yF2x6","phones":[{"label":"شماره اصلی","number":"09100117331"},{"label":"شماره دوم","number":"09058571274"},{"label":"آقای خانی","number":"09191971274"}]}]}];
-  var currentIdx = 0;
+  var lists = [{"id":"muqv82huef1yggqqgau4o","name":"رفت","students":[{"id":"muqv82huef1ygbkijogzy","name":"آقای ابراهیمی","grade":"هفتم","addrName":"خانه‌ی آقاجون","map":"https://www.google.com/maps/place/34%C2%B039'05.9%22N+50%C2%B051'53.4%22E/@34.651624,50.864828,16z/data=!4m4!3m3!8m2!3d34.651624!4d50.864828?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2500000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09100558263"}]},{"id":"muqv82huef1yg9qaplace","name":"آقای ذولفی","grade":"هشتم","addrName":"فهیمی ۱۴","map":"https://www.google.com/maps/place/34%C2%B039'02.4%22N+50%C2%B052'09.9%22E/@34.650665,50.869402,16z/data=!4m4!3m3!8m2!3d34.650665!4d50.869402?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2500000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09193590580"}]},{"id":"muqv82huef1yg75k9ywp3","name":"آقای قریش وندی","grade":"هفتم","addrName":"توحید ۱۰","map":"https://www.google.com/maps/place/34%C2%B038'29.5%22N+50%C2%B051'52.8%22E/@34.641521,50.864665,16z/data=!4m4!3m3!8m2!3d34.641521!4d50.864665?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2500000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"0272105167"}]},{"id":"muqv82huef1ygpcfpqq93","name":"آقای فرهانی","grade":"هفتم","addrName":"توحید ۱۷","map":"https://www.google.com/maps/place/34%C2%B038'41.2%22N+50%C2%B051'40.6%22E/@34.644767,50.861279,16z/data=!4m4!3m3!8m2!3d34.644767!4d50.861279?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2500000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09127529054"}]},{"id":"muqv82huef1ygzdqppgte","name":"خانم حجتی","grade":"پنجم","addrName":"توحید 45","map":"https://www.google.com/maps/search/34.651623,+50.846064?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=77925681-f15a-43e5-9667-38a4b1dd1857","tuition":1800000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"۰۹۰۱۰۹۸۶۸۱۵"}]},{"id":"muqvrrmhfll21kc94znm7p","name":"خانم داوودنیا","grade":"چهارم","addrName":"توحید 49","map":"https://www.google.com/maps/place/34%C2%B039'03.8%22N+50%C2%B050'44.8%22E/@34.6511388,50.8458722,18.14z/data=!4m4!3m3!8m2!3d34.651045!4d50.845767?entry=ttu&g_ep=EgoyMDI2MDkyOS4wIKXMDSoASAFQAw%3D%3D","tuition":2000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"۰۹۱۰۷۷۱۷۹۷۲"},{"label":"شماره دوم","number":"09373366657"}]},{"id":"muqv82huef1ygb3vdf3we","name":"خانم عزیزی","grade":"چهارم","addrName":"سر توحید 35","map":"https://www.google.com/maps/place/34%C2%B038'55.9%22N+50%C2%B051'00.6%22E/@34.648855,50.850164,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.648855!4d50.850164?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09122515740"},{"label":"شماره دوم","number":"02538849540"}]},{"id":"muqv82huef1yga0aguoxq","name":"خانم صادقی","grade":"اول","addrName":"توحید 32","map":"https://www.google.com/maps/search/34.647443,+50.851560?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=b2d2d3bc-a489-45d8-8b3c-eba0f7187773","tuition":1800000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09908603747"}]},{"id":"muqv82huef1ygimtczn37","name":"خانم تلخابی","grade":"سوم","addrName":"کاشانی 9","map":"https://www.google.com/maps/place/34%C2%B038'58.0%22N+50%C2%B051'31.0%22E/@34.649435,50.858607,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.649435!4d50.858607?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09192944894"}]},{"id":"muqv82huef1yg9pap12ar","name":"خانم کریمی","grade":"دوم","addrName":"کاشانی 44","map":"https://www.google.com/maps/place/34%C2%B039'12.1%22N+50%C2%B051'40.2%22E/@34.653355,50.861152,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.653355!4d50.861152?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":2000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09193497315"}]},{"id":"muqw1blfmyzry8hlt1hknr","name":"خانم میرزایی","grade":"سوم","addrName":"زاد 26","map":"https://www.google.com/maps/place/34%C2%B038'55.7%22N+50%C2%B052'09.4%22E/@34.648802,50.869282,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.648802!4d50.869282?entry=ttu&g_ep=EgoyMDI2MDkyOS4wIKXMDSoASAFQAw%3D%3D","tuition":800000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09198524293"}]},{"id":"muqv82huef1ygz4yzh1o5","name":"خانم سبز علی گل","grade":"دوم","addrName":"زاد 22 فرعی 2","map":"https://maps.app.goo.gl/Dpj8DF61g6rDmQoH8","tuition":1300000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09018121495"},{"label":"شماره خانه","number":"02538803384"}]},{"id":"muqv82huef1ygcgvz4v4d","name":"خانم پیرزادی","grade":"چهارم","addrName":"زاد 16","map":"https://maps.app.goo.gl/SXaLLi5UPoCqQTf6A","tuition":1200000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09198514504"}]},{"id":"muqv82huef1ygnspaeh09","name":"قابل","grade":"پنجم","addrName":"زاد 2","map":"https://maps.app.goo.gl/29te5GWfULB8TboE9","tuition":1300000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09105837562"},{"label":"آقای قابل","number":"09126528912"}]}]},{"id":"muln0e3lbx6i3","name":"برگشت","students":[{"id":"mullagjfd9v7x","name":"خانم کریمی","grade":"دوم","addrName":"کاشانی 44","map":"https://www.google.com/maps/place/34%C2%B039'12.1%22N+50%C2%B051'40.2%22E/@34.653355,50.861152,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.653355!4d50.861152?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1yg9pap12ar"},"phones":[{"label":"شماره اصلی","number":"09193497315"}]},{"id":"mumr69kpvptc9","name":"خانم افشاری","grade":"دوم","addrName":"کاشانی 42","map":"https://www.google.com/maps/place/34%C2%B039'10.9%22N+50%C2%B051'39.1%22E/@34.653021,50.860853,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.653021!4d50.860853?entry=ttu&g_ep=EgoyMDI2MDkyOS4wIKXMDSoASAFQAw%3D%3D","tuition":2000000,"tuitionLink":null,"phones":[{"label":"شماره پدر","number":"09128546727"}]},{"id":"muqxo07uf4v17cq8pi0pys","name":"خانم جلالی منش","grade":"سوم","addrName":"کاشانی 42","map":"https://www.google.com/maps/place/34%C2%B039'10.9%22N+50%C2%B051'39.1%22E/@34.653021,50.860853,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.653021!4d50.860853?entry=ttu&g_ep=EgoyMDI2MDkyOS4wIKXMDSoASAFQAw%3D%3D","tuition":2000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09100752779"}]},{"id":"muqwckgb7vkqnsxyis2woj","name":"خانم نوروزی","grade":"پنجم","addrName":"توحید 27","map":"https://www.google.com/maps/place/34%C2%B038'51.8%22N+50%C2%B051'10.6%22E/@34.647712,50.852951,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.647712!4d50.852951?entry=ttu&g_ep=EgoyMDI2MDkyOS4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09907516235"}]},{"id":"mull3ss3obtx3","name":"خانم تلخابی","grade":"سوم","addrName":"کاشانی 9","map":"https://www.google.com/maps/place/34%C2%B038'58.0%22N+50%C2%B051'31.0%22E/@34.649435,50.858607,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.649435!4d50.858607?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygimtczn37"},"phones":[{"label":"شماره اصلی","number":"09192944894"}]},{"id":"mumrdhskstv1c","name":"خانم جعفری","grade":"اول","addrName":"توحید 23","map":"https://maps.app.goo.gl/8MbJ3cMXR7uaMLGg6","tuition":1000000,"tuitionLink":null,"phones":[{"label":"شماره اصلی","number":"09198678375"},{"label":"شماره ثابت","number":"02538835328"}]},{"id":"mumqoobgpn8y5","name":"خانم پیرزادی","grade":"چهارم","addrName":"زاد 16","map":"https://maps.app.goo.gl/SXaLLi5UPoCqQTf6A","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygcgvz4v4d"},"phones":[{"label":"شماره اصلی","number":"09198514504"}]},{"id":"mumqfqdybzdbc","name":"خانم سبز علی گل","grade":"دوم","addrName":"زاد 22 فرعی 2","map":"https://maps.app.goo.gl/Dpj8DF61g6rDmQoH8","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygz4yzh1o5"},"phones":[{"label":"شماره اصلی","number":"09018121495"},{"label":"شماره خانه","number":"02538803384"}]},{"id":"mumqro3ved0ig","name":"خانم قابل","grade":"پنجم","addrName":"زاد 2","map":"https://maps.app.goo.gl/29te5GWfULB8TboE9","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygnspaeh09"},"phones":[{"label":"شماره اصلی","number":"09105837562"},{"label":"آقای قابل","number":"09126528912"}]},{"id":"mull0bxy64m2c","name":"خانم صادقی","grade":"اول","addrName":"توحید 32","map":"https://www.google.com/maps/search/34.647443,+50.851560?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=b2d2d3bc-a489-45d8-8b3c-eba0f7187773","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1yga0aguoxq"},"phones":[{"label":"شماره اصلی","number":"09908603747"}]},{"id":"mulkxbh1drpeu","name":"خانم عزیزی","grade":"چهارم","addrName":"سر توحید 35","map":"https://www.google.com/maps/place/34%C2%B038'55.9%22N+50%C2%B051'00.6%22E/@34.648855,50.850164,17z/data=!3m1!4b1!4m4!3m3!8m2!3d34.648855!4d50.850164?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygb3vdf3we"},"phones":[{"label":"شماره اصلی","number":"09122515740"},{"label":"شماره دوم","number":"02538849540"}]},{"id":"mulksmrnla4c4","name":"خانم حجتی","grade":"پنجم","addrName":"توحید 45","map":"https://www.google.com/maps/search/34.651623,+50.846064?entry=tts&g_ep=EgoyMDI2MDkyMy4wIPu8ASoASAFQAw%3D%3D&skid=77925681-f15a-43e5-9667-38a4b1dd1857","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygzdqppgte"},"phones":[{"label":"شماره اصلی","number":"۰۹۰۱۰۹۸۶۸۱۵"}]},{"id":"muqwntrt64vfjk8w46tf3k","name":"خانم داوودنیا","grade":"چهارم","addrName":"توحید 49","map":"https://www.google.com/maps/place/34%C2%B039'03.8%22N+50%C2%B050'44.8%22E/@34.6511388,50.8458722,18.14z/data=!4m4!3m3!8m2!3d34.651045!4d50.845767?entry=ttu&g_ep=EgoyMDI2MDkyOS4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqvrrmhfll21kc94znm7p"},"phones":[{"label":"شماره ی اصلی","number":"۰۹۱۰۷۷۱۷۹۷۲"}]},{"id":"seed-3","name":"آقای قریش وندی","grade":"هفتم","addrName":"توحید ۱۰","map":"https://www.google.com/maps/place/34%C2%B038'29.5%22N+50%C2%B051'52.8%22E/@34.641521,50.864665,16z/data=!4m4!3m3!8m2!3d34.641521!4d50.864665?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1yg75k9ywp3"},"phones":[{"label":"شماره اصلی","number":"0272105167"}]},{"id":"seed-4","name":"آقای فرهانی","grade":"هفتم","addrName":"توحید ۱۷","map":"https://www.google.com/maps/place/34%C2%B038'41.2%22N+50%C2%B051'40.6%22E/@34.644767,50.861279,16z/data=!4m4!3m3!8m2!3d34.644767!4d50.861279?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygpcfpqq93"},"phones":[{"label":"شماره اصلی","number":"09127529054"}]},{"id":"seed-2","name":"آقای ذولفی","grade":"هشتم","addrName":"فهیمی ۱۴","map":"https://www.google.com/maps/place/34%C2%B039'02.4%22N+50%C2%B052'09.9%22E/@34.650665,50.869402,16z/data=!4m4!3m3!8m2!3d34.650665!4d50.869402?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1yg9qaplace"},"phones":[{"label":"شماره اصلی","number":"09193590580"}]},{"id":"seed-1","name":"آقای ابراهیمی","grade":"هفتم","addrName":"خانه‌ی آقاجون","map":"https://www.google.com/maps/place/34%C2%B039'05.9%22N+50%C2%B051'53.4%22E/@34.651624,50.864828,16z/data=!4m4!3m3!8m2!3d34.651624!4d50.864828?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D","tuition":1000000,"tuitionLink":{"listId":"muqv82huef1yggqqgau4o","studentId":"muqv82huef1ygbkijogzy"},"phones":[{"label":"شماره اصلی","number":"09100558263"}]}]}];
+  var initialIndex = 0;
+  var currentIdx = initialIndex >= 0 && initialIndex < lists.length ? initialIndex : 0;
   var checks = {};
-  var STORAGE = "student_checks_v11";
+  var tuitionPaid = {};
+  var STORAGE = "student_checks_v14";
+  var TUITION_STORAGE = "student_tuition_v14";
   var DEFAULT_LABEL = "شماره اصلی";
+  var DEFAULT_TUITION = 1000000;
+  var MONTHS = ["مهر","آبان","آذر","دی","بهمن","اسفند","فروردین","اردیبهشت","خرداد"];
   try { checks = JSON.parse(localStorage.getItem(STORAGE)) || {}; } catch (e) { checks = {}; }
+  try { tuitionPaid = JSON.parse(localStorage.getItem(TUITION_STORAGE)) || {}; } catch (e) { tuitionPaid = {}; }
   function save() { try { localStorage.setItem(STORAGE, JSON.stringify(checks)); } catch (e) {} }
+  function saveTuition() { try { localStorage.setItem(TUITION_STORAGE, JSON.stringify(tuitionPaid)); } catch (e) {} }
+  function formatTuition(n) { var num = Number(n) || 0; return num.toLocaleString("fa-IR"); }
+  function getEffectiveTuition(student) {
+    if (!student) return DEFAULT_TUITION;
+    if (student.tuitionLink && student.tuitionLink.listId && student.tuitionLink.studentId) {
+      for (var li = 0; li < lists.length; li++) {
+        if (lists[li].id === student.tuitionLink.listId) {
+          var sts = lists[li].students || [];
+          for (var si = 0; si < sts.length; si++) {
+            if (sts[si].id === student.tuitionLink.studentId) {
+              var tt = Number(sts[si].tuition);
+              return (isNaN(tt) || tt < 0) ? DEFAULT_TUITION : tt;
+            }
+          }
+        }
+      }
+    }
+    var t = Number(student.tuition);
+    return (isNaN(t) || t < 0) ? DEFAULT_TUITION : t;
+  }
+  function getLinkedName(student) {
+    if (!student || !student.tuitionLink) return null;
+    for (var li = 0; li < lists.length; li++) {
+      if (lists[li].id === student.tuitionLink.listId) {
+        var sts = lists[li].students || [];
+        for (var si = 0; si < sts.length; si++) {
+          if (sts[si].id === student.tuitionLink.studentId) return sts[si].name;
+        }
+      }
+    }
+    return null;
+  }
+  function getTuitionPartners(listId, studentId) {
+    var partners = [];
+    var student = null;
+    for (var li = 0; li < lists.length; li++) {
+      if (lists[li].id === listId) {
+        var sts = lists[li].students || [];
+        for (var si = 0; si < sts.length; si++) { if (sts[si].id === studentId) { student = sts[si]; break; } }
+        break;
+      }
+    }
+    if (!student) return partners;
+    if (student.tuitionLink && student.tuitionLink.listId && student.tuitionLink.studentId) {
+      partners.push({ listId: student.tuitionLink.listId, studentId: student.tuitionLink.studentId });
+    }
+    for (var li2 = 0; li2 < lists.length; li2++) {
+      var sts2 = lists[li2].students || [];
+      for (var si2 = 0; si2 < sts2.length; si2++) {
+        var ss = sts2[si2];
+        if (ss.tuitionLink && ss.tuitionLink.listId === listId && ss.tuitionLink.studentId === studentId) {
+          partners.push({ listId: lists[li2].id, studentId: ss.id });
+        }
+      }
+    }
+    return partners;
+  }
+  function setMonthPaid(listId, studentId, month, isPaid) {
+    var targets = [{ listId: listId, studentId: studentId }].concat(getTuitionPartners(listId, studentId));
+    var seen = {};
+    targets.forEach(function(t) {
+      var key = t.listId + "|" + t.studentId;
+      if (seen[key]) return; seen[key] = true;
+      if (!tuitionPaid[t.listId]) tuitionPaid[t.listId] = {};
+      if (!tuitionPaid[t.listId][t.studentId]) tuitionPaid[t.listId][t.studentId] = {};
+      if (isPaid) { tuitionPaid[t.listId][t.studentId][month] = true; }
+      else {
+        delete tuitionPaid[t.listId][t.studentId][month];
+        if (Object.keys(tuitionPaid[t.listId][t.studentId]).length === 0) delete tuitionPaid[t.listId][t.studentId];
+      }
+    });
+    saveTuition();
+  }
 
   var tabsEl = document.getElementById("listTabs");
-  var listEl = document.getElementById("list");
-  var detailEl = document.getElementById("detail");
-  var h1 = document.querySelector("h1");
+  var contentEl = document.getElementById("content");
 
   function cur() { return lists[currentIdx]; }
 
@@ -97,10 +187,11 @@ a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; 
       b.type = "button";
       b.className = "list-tab" + (i === currentIdx ? " active" : "");
       b.textContent = l.name;
+      b.setAttribute("data-idx", i);
       b.addEventListener("click", function(){
         if (i === currentIdx) return;
         currentIdx = i;
-        renderTabs(); renderList();
+        renderTabs(); renderAll();
       });
       tabsEl.appendChild(b);
     });
@@ -113,22 +204,22 @@ a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; 
     r.appendChild(l); r.appendChild(v); return r;
   }
 
-  function renderList() {
-    detailEl.style.display = "none"; detailEl.innerHTML = "";
-    listEl.style.display = "flex"; h1.style.display = "block";
-    listEl.innerHTML = "";
+  function renderAll() {
+    contentEl.innerHTML = "";
     var list = cur();
     var students = list.students || [];
-    if (!students.length) { listEl.innerHTML = '<div class="empty-msg">در این لیست هنوز دانش‌آموزی نیست.</div>'; return; }
+    if (!students.length) { contentEl.innerHTML = '<div class="empty-msg">در این لیست هنوز دانش‌آموزی نیست.</div>'; return; }
+
+    var wrap = document.createElement("div"); wrap.id = "list";
 
     var gr = document.createElement("button");
     gr.type = "button"; gr.className = "reset-checks-btn";
     gr.textContent = "🔄 ریست تیک‌های این لیست";
     gr.addEventListener("click", function(){
       if (!confirm("مطمئنی؟ همه‌ی تیک‌های این لیست پاک شود؟")) return;
-      delete checks[list.id]; save(); renderList();
+      delete checks[list.id]; save(); renderAll();
     });
-    listEl.appendChild(gr);
+    wrap.appendChild(gr);
 
     students.forEach(function(s, i){
       var isChecked = !!(checks[list.id] && checks[list.id][s.id]);
@@ -143,6 +234,15 @@ a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; 
       names.appendChild(nm); names.appendChild(ad);
       btn.appendChild(num); btn.appendChild(names);
       btn.addEventListener("click", function(){ showDetail(i); });
+
+      var tuitionBtn = document.createElement("button");
+      tuitionBtn.type = "button";
+      tuitionBtn.className = "tuition-btn";
+      tuitionBtn.textContent = "شهریه";
+      tuitionBtn.addEventListener("click", function(ev){
+        ev.preventDefault(); ev.stopPropagation();
+        showTuition(i);
+      });
 
       var checkBtn = document.createElement("button");
       checkBtn.type = "button";
@@ -163,15 +263,17 @@ a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; 
       };
 
       row.appendChild(btn);
+      row.appendChild(tuitionBtn);
       row.appendChild(checkBtn);
-      listEl.appendChild(row);
+      wrap.appendChild(row);
     });
+    contentEl.appendChild(wrap);
   }
 
   function showDetail(i) {
     var list = cur();
     var s = list.students[i];
-    detailEl.innerHTML = "";
+    contentEl.innerHTML = "";
     var card = document.createElement("div"); card.className = "card";
     var tn = document.createElement("span"); tn.className = "top-num"; tn.textContent = i + 1;
     var h2 = document.createElement("h2"); h2.textContent = s.name;
@@ -185,27 +287,118 @@ a.map { display:inline-block; color:#fff; background:#e8453c; padding:8px 14px; 
       pr.appendChild(l1); pr.appendChild(tel); card.appendChild(pr);
     });
     card.appendChild(makeRow("آدرس", s.addrName));
+    var tuitionVal = formatTuition(getEffectiveTuition(s)) + " تومان";
+    var linkedName = getLinkedName(s);
+    if (linkedName) tuitionVal += " (مشترک با " + linkedName + ")";
+    card.appendChild(makeRow("مبلغ شهریه", tuitionVal));
     var mr = document.createElement("div"); mr.className = "row";
     var l2 = document.createElement("span"); l2.className = "lbl"; l2.textContent = "مسیریابی";
     var ma = document.createElement("a"); ma.className = "map"; ma.href = s.map; ma.target = "_blank"; ma.rel = "noopener"; ma.textContent = "📍 بازکردن در نقشه گوگل";
     mr.appendChild(l2); mr.appendChild(ma); card.appendChild(mr);
 
     var back = document.createElement("button"); back.className = "back"; back.textContent = "← بازگشت به لیست";
-    back.addEventListener("click", hideDetail); card.appendChild(back);
-    detailEl.appendChild(card);
-    listEl.style.display = "none"; h1.style.display = "none";
-    detailEl.style.display = "block"; window.scrollTo(0, 0);
+    back.addEventListener("click", renderAll); card.appendChild(back);
+    contentEl.appendChild(card);
+    window.scrollTo(0, 0);
   }
 
-  function hideDetail() {
-    detailEl.style.display = "none"; detailEl.innerHTML = "";
-    renderList();
-    listEl.style.display = "flex"; h1.style.display = "block";
+  function showTuition(i) {
+    var HOLD_MS = 2000;
+    var list = cur();
+    var s = list.students[i];
+    contentEl.innerHTML = "";
+    var card = document.createElement("div"); card.className = "card";
+    var tn = document.createElement("span"); tn.className = "top-num"; tn.textContent = i + 1;
+    var h2 = document.createElement("h2"); h2.textContent = s.name;
+    card.appendChild(tn); card.appendChild(h2);
+    var amountEl = document.createElement("div");
+    amountEl.className = "tuition-amount";
+    var amountText = "مبلغ : " + formatTuition(getEffectiveTuition(s)) + " تومان";
+    var linkedName2 = getLinkedName(s);
+    if (linkedName2) amountText += "  (مشترک با " + linkedName2 + ")";
+    amountEl.textContent = amountText;
+    card.appendChild(amountEl);
+    var paid = (tuitionPaid[list.id] && tuitionPaid[list.id][s.id]) || {};
+    var grid = document.createElement("div"); grid.className = "months-grid";
+    MONTHS.forEach(function(month){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      var isPaid = !!paid[month];
+      btn.className = "month-btn" + (isPaid ? " paid" : "");
+      btn.textContent = month;
+      var strike = document.createElement("span");
+      strike.className = "strike";
+      if (isPaid) { strike.style.transformOrigin = "left center"; strike.style.transform = "scaleX(1)"; }
+      else { strike.style.transformOrigin = "right center"; strike.style.transform = "scaleX(0)"; }
+      btn.appendChild(strike);
+      var raf = null, startTs = 0, holding = false, completed = false;
+      function setStrikeProgress(p, fromPaid) {
+        p = Math.max(0, Math.min(1, p));
+        if (!fromPaid) { strike.style.transformOrigin = "right center"; strike.style.transform = "scaleX(" + p + ")"; }
+        else { strike.style.transformOrigin = "left center"; strike.style.transform = "scaleX(" + (1 - p) + ")"; }
+      }
+      function commitToggle() {
+        var nowPaid = !!(tuitionPaid[list.id] && tuitionPaid[list.id][s.id] && tuitionPaid[list.id][s.id][month]);
+        var newPaid = !nowPaid;
+        setMonthPaid(list.id, s.id, month, newPaid);
+        if (newPaid) {
+          btn.classList.add("paid");
+          strike.style.transformOrigin = "left center"; strike.style.transform = "scaleX(1)";
+        } else {
+          btn.classList.remove("paid");
+          strike.style.transformOrigin = "right center"; strike.style.transform = "scaleX(0)";
+        }
+        btn.classList.remove("success-pulse"); void btn.offsetWidth; btn.classList.add("success-pulse");
+        setTimeout(function(){ btn.classList.remove("success-pulse"); }, 600);
+      }
+      function onHoldStart(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        if (holding) return;
+        holding = true; completed = false; startTs = performance.now();
+        btn.classList.add("holding");
+        var fromPaid = btn.classList.contains("paid");
+        setStrikeProgress(0, fromPaid);
+        function tick(now) {
+          if (!holding) return;
+          var elapsed = now - startTs;
+          var p = Math.min(1, elapsed / HOLD_MS);
+          setStrikeProgress(p, fromPaid);
+          if (p >= 1) {
+            holding = false; completed = true; btn.classList.remove("holding");
+            commitToggle(); raf = null; return;
+          }
+          raf = requestAnimationFrame(tick);
+        }
+        raf = requestAnimationFrame(tick);
+      }
+      function onHoldEnd() {
+        if (!holding) return;
+        holding = false; btn.classList.remove("holding");
+        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        if (completed) return;
+        var fromPaid = btn.classList.contains("paid");
+        strike.style.transition = "transform .28s ease-out";
+        setStrikeProgress(0, fromPaid);
+        setTimeout(function(){ strike.style.transition = "none"; }, 300);
+      }
+      btn.addEventListener("pointerdown", onHoldStart);
+      btn.addEventListener("pointerup", onHoldEnd);
+      btn.addEventListener("pointercancel", onHoldEnd);
+      btn.addEventListener("pointerleave", onHoldEnd);
+      btn.addEventListener("lostpointercapture", onHoldEnd);
+      btn.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+      grid.appendChild(btn);
+    });
+    card.appendChild(grid);
+    var back = document.createElement("button"); back.className = "back"; back.textContent = "← بازگشت به لیست";
+    back.addEventListener("click", renderAll); card.appendChild(back);
+    contentEl.appendChild(card);
     window.scrollTo(0, 0);
   }
 
   renderTabs();
-  renderList();
+  renderAll();
 })();
 </script>
 </body>
