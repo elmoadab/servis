@@ -1,4 +1,4 @@
-const CACHE = 'students-dowsgq-v11-mumsbunt';
+const CACHE = 'students-1adsxzv-v14-muqyxk6t';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function (e) {
@@ -19,8 +19,6 @@ self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   var url; try { url = new URL(e.request.url); } catch (err) { return; }
   if (url.origin !== location.origin) return;
-
-  // برای صفحه‌های HTML: همیشه از شبکه بگیر (تازه‌ترین نسخه)
   if (e.request.mode === 'navigate' || e.request.destination === 'document') {
     e.respondWith(
       fetch(e.request).then(function (resp) {
@@ -31,8 +29,6 @@ self.addEventListener('fetch', function (e) {
     );
     return;
   }
-
-  // بقیه‌ی فایل‌ها: از کش، اگر نبود از شبکه
   e.respondWith(
     caches.match(e.request).then(function (cached) {
       if (cached) return cached;
